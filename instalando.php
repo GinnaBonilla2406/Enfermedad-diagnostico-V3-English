@@ -57,15 +57,17 @@
 
 		if( $interrupcion_proceso == 0 ) //Si esta variable cambia, la instalación será interrumpida para cada bloque sql.
 		{
-			$tmp_nombre_objeto_o_tabla = "tb_resultados";
+			$tmp_nombre_objeto_o_tabla = "tb_manuales";
 
-			//El sistema procederá a crear la tabla si no existe.
+			//El sistema procederá a crear la primera tabla si no existe.			
 			$sql  = " CREATE TABLE IF NOT EXISTS $tmp_nombre_objeto_o_tabla ( ";
-			$sql .= " id_resultados int(11) unsigned NOT NULL AUTO_INCREMENT,  ";
-			$sql .= " id_signo int(11), ";
-			$sql .= " id_enfermedades int(11) NOT NULL, ";
-			$sql .= " fecha_resultado datetime, ";
-			$sql .= " PRIMARY KEY (id_resultados) ";
+			$sql .= " id_manual int(11) NOT NULL, ";
+			$sql .= " titulo varchar(1000) NOT NULL, ";
+			$sql .= " definicion text NOT NULL, ";
+			$sql .= " url varchar(50) NOT NULL, ";
+			$sql .= " palabras text NOT NULL, ";
+			$sql .= " PRIMARY KEY (id_manual) ";
+
 			$sql .= " ) ENGINE=InnoDB  DEFAULT CHARSET=latin1 AUTO_INCREMENT=1  ";
 			
 			$resultado = $conexion->query( $sql );
@@ -87,11 +89,13 @@
 
 			//El sistema procederá a crear la tabla si no existe.
 			$sql  = " CREATE TABLE IF NOT EXISTS $tmp_nombre_objeto_o_tabla ( ";
-			$sql .= " documento varchar(20) unsigned NOT NULL AUTO_INCREMENT,  ";
-			$sql .= " nombre varchar(20), ";
+			$sql .= " documento varchar(20) NOT NULL,  ";
+			$sql .= " nombre varchar(50) NOT NULL, ";
 			$sql .= " id_resultados int(11) NOT NULL, ";
-			$sql .= " id_manual int(11), ";
-			$sql .= " PRIMARY KEY (id_resultados) ";
+			$sql .= " id_manual int(11) NOT NULL, ";
+			$sql .= " PRIMARY KEY (documento), ";
+			$sql .= " KEY indice_id_manual (id_manual), ";
+			$sql .= " KEY indice_id_resultados (id_resultados) ";
 			$sql .= " ) ENGINE=InnoDB  DEFAULT CHARSET=latin1 AUTO_INCREMENT=1  ";
 			
 			$resultado = $conexion->query( $sql );
@@ -106,18 +110,48 @@
 					$interrupcion_proceso = 1;
 				}
 		}
+
+
+		
 		if( $interrupcion_proceso == 0 ) //Si esta variable cambia, la instalación será interrumpida para cada bloque sql.
 		{
-			$tmp_nombre_objeto_o_tabla = "tb_manuales";
+			$tmp_nombre_objeto_o_tabla = "tb_resultados";
 
 			//El sistema procederá a crear la primera tabla si no existe.			
 			$sql  = " CREATE TABLE IF NOT EXISTS $tmp_nombre_objeto_o_tabla ( ";
-			$sql .= " id_manual int(11) unsigned NOT NULL AUTO_INCREMENT,  ";
-			$sql .= " titulo varchar(1000) NOT NULL, ";
-			$sql .= " definicion text NOT NULL, ";
-			$sql .= " url varchar(50) NOT NULL, ";
-			$sql .= " palabras text NOT NULL, ";
-			$sql .= " PRIMARY KEY (id_manual) ";
+			$sql .= " id_resultados int(11) NOT NULL,  ";
+			$sql .= " id_signos int(11) NOT NULL, ";
+			$sql .= " id_enfermedades int(11)NOT NULL, ";
+			$sql .= " fecha_resultado date NOT NULL, ";
+			$sql .= " PRIMARY KEY (id_resultados), ";
+			$sql .= " KEY indice_id_enfermedades (id_enfermedades), ";
+			$sql .= " KEY indice_id_signos (id_signos) ";
+			$sql .= " ) ENGINE=InnoDB  DEFAULT CHARSET=latin1 AUTO_INCREMENT=1  ";
+
+			$resultado = $conexion->query( $sql );
+
+			//Si se creó la tabla, el sistema cargará los datos pertienentes del informe.
+			if( verificar_existencia_tabla( $tmp_nombre_objeto_o_tabla, $_GET[ 'servidor' ], $_GET[ 'usuario' ], $_GET[ 'contrasena' ], $_GET[ 'bd' ], $imprimir_mensajes_prueba ) == 1 )
+			{
+				$cadena_informe_instalacion .= "<br>La tabla $tmp_nombre_objeto_o_tabla se ha creado con éxito.";	
+
+			}else{
+					$cadena_informe_instalacion .= "<br>Error: La tabla $tmp_nombre_objeto_o_tabla no se ha creado. ".$mensaje1;	
+					$interrupcion_proceso = 1;
+				}
+		}
+
+
+
+		if( $interrupcion_proceso == 0 ) //Si esta variable cambia, la instalación será interrumpida para cada bloque sql.
+		{
+			$tmp_nombre_objeto_o_tabla = "tb_enfermedades";
+
+			//El sistema procederá a crear la primera tabla si no existe.			
+			$sql  = " CREATE TABLE IF NOT EXISTS $tmp_nombre_objeto_o_tabla ( ";
+			$sql .= " id_enfermedades int(11) NOT NULL,  ";
+			$sql .= " enfermedades varchar(200) NOT NULL, ";
+			$sql .= " PRIMARY KEY (id_enfermedades) ";
 			$sql .= " ) ENGINE=InnoDB  DEFAULT CHARSET=latin1 AUTO_INCREMENT=1  ";
 
 			$resultado = $conexion->query( $sql );
@@ -135,14 +169,68 @@
 
 		if( $interrupcion_proceso == 0 ) //Si esta variable cambia, la instalación será interrumpida para cada bloque sql.
 		{
-			$tmp_nombre_objeto_o_tabla = "fk_dpto_pais";
+			$tmp_nombre_objeto_o_tabla = "tb_signos_y_sintomas";
+
+			//El sistema procederá a crear la primera tabla si no existe.			
+			$sql  = " CREATE TABLE IF NOT EXISTS $tmp_nombre_objeto_o_tabla ( ";
+			$sql .= " id_signos int(11) NOT NULL,  ";
+			$sql .= " signos_y_sintomas varchar(200) NOT NULL, ";
+			$sql .= " PRIMARY KEY (id_signos) ";
+			$sql .= " ) ENGINE=InnoDB  DEFAULT CHARSET=latin1 AUTO_INCREMENT=1  ";
+
+			$resultado = $conexion->query( $sql );
+
+			//Si se creó la tabla, el sistema cargará los datos pertienentes del informe.
+			if( verificar_existencia_tabla( $tmp_nombre_objeto_o_tabla, $_GET[ 'servidor' ], $_GET[ 'usuario' ], $_GET[ 'contrasena' ], $_GET[ 'bd' ], $imprimir_mensajes_prueba ) == 1 )
+			{
+				$cadena_informe_instalacion .= "<br>La tabla $tmp_nombre_objeto_o_tabla se ha creado con éxito.";	
+
+			}else{
+					$cadena_informe_instalacion .= "<br>Error: La tabla $tmp_nombre_objeto_o_tabla no se ha creado. ".$mensaje1;	
+					$interrupcion_proceso = 1;
+				}
+		}
+
+		
+//**************************** Relaciones *********************************************************///
+		if( $interrupcion_proceso == 0 ) //Si esta variable cambia, la instalación será interrumpida para cada bloque sql.
+		{
+			$tmp_nombre_objeto_o_tabla = "tb_resultados_ibfk_1";
 
 			//El sistema procederá a crear una de las restricciones por llave foranea.				
-			$sql  = " ALTER TABLE tb_loco ";
-			$sql .= " ADD CONSTRAINT $tmp_nombre_objeto_o_tabla FOREIGN KEY (id_loco) REFERENCES tb_si (id_loco) ";
-			$sql .= " ON DELETE CASCADE ON UPDATE CASCADE ";
+			$sql = "ALTER TABLE tb_resultados";
+			$sql .= "  ADD CONSTRAINT tb_resultados_ibfk_1 FOREIGN KEY (id_enfermedades) REFERENCES tb_enfermedades (id_enfermedades) ON DELETE CASCADE ON UPDATE CASCADE,";
+			$sql .= "  ADD CONSTRAINT tb_resultados_ibfk_2 FOREIGN KEY (id_signos) REFERENCES tb_signos_y_sintomas (id_signos) ON DELETE CASCADE ON UPDATE CASCADE;";
 
-			//echo $sql;
+			//$sql .= " ON DELETE CASCADE ON UPDATE CASCADE ";
+
+
+
+			echo $sql;
+			$resultado = $conexion->query( $sql );
+
+			//Si se creó el objeto, el sistema cargará los datos pertienentes del informe.
+			if( verificar_existencia_objeto( $tmp_nombre_objeto_o_tabla, $_GET[ 'servidor' ], $_GET[ 'usuario' ], $_GET[ 'contrasena' ], $_GET[ 'bd' ], $imprimir_mensajes_prueba ) == 1 )
+			{
+				$cadena_informe_instalacion .= "<br>La restricción $tmp_nombre_objeto_o_tabla se ha creado con éxito.";	
+
+			}else{
+					$cadena_informe_instalacion .= "<br>Error: La restricción $tmp_nombre_objeto_o_tabla no se ha creado. ".$mensaje1;	
+					$interrupcion_proceso = 1;
+				}
+			}
+		
+
+	if( $interrupcion_proceso == 0 ) //Si esta variable cambia, la instalación será interrumpida para cada bloque sql.
+		{
+			$tmp_nombre_objeto_o_tabla = "tb_usuarios_ibfk_1";
+
+			//El sistema procederá a crear una de las restricciones por llave foranea.				
+			$sql  = " ALTER TABLE tb_usuarios ";
+  			$sql .= " ADD CONSTRAINT tb_usuarios_ibfk_1 FOREIGN KEY (id_manual) REFERENCES tb_manuales (id_manual) ON DELETE CASCADE ON UPDATE CASCADE, ";
+  			$sql .= " ADD CONSTRAINT tb_usuarios_ibfk_2 FOREIGN KEY (id_resultados) REFERENCES tb_resultados (id_resultados) ON DELETE CASCADE ON UPDATE CASCADE; ";
+
+			echo $sql. "<br>";
 			$resultado = $conexion->query( $sql );
 
 			//Si se creó el objeto, el sistema cargará los datos pertienentes del informe.
@@ -155,6 +243,12 @@
 					$interrupcion_proceso = 1;
 				}
 		}
+
+		/////////////////////////////////////////////////////////res
+
+
+
+	 	/////////////////////////////////////////////////////////res
 
 		
 		if( $interrupcion_proceso == 0 )
@@ -230,5 +324,7 @@
 
 		return $conteo;
 	}
+
+		
 
 ?>
